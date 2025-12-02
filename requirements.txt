@@ -2,8 +2,9 @@ wget
 tqdm
 requests
 flask
-faiss-cpu
 langchain
+faiss-cpu
 langchain-community
 langchain-ollama
 langchain-core
+webbrowser

@@ -177,6 +177,19 @@
             align-items: center;
             gap: 30px;
         }
+        
+        .caption {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 65px;
+            color: rgba(100, 200, 255, 0.8);
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.6);
+            font-weight: bold;
+            letter-spacing: 4px;
+            z-index: 15;
+        }
 
         .input-container {
             width: 80%;
@@ -419,10 +432,11 @@
                 <div class="torso"></div>
                 <div class="arm left"></div>
                 <div class="arm right"></div>
+			<div class="caption">RForaCle</div>
             </div>
         </div>
         <div class="input-container">
-            <textarea class="big-input" id="inputField1" placeholder="Enter your query..."></textarea>
+            <textarea class="big-input" id="inputField1" placeholder="Ask the oracle of Internet - RFCs"></textarea>
         </div>
     </div>
 
@@ -529,7 +543,7 @@
             Writing...
         </div>
         <div class="input-container">
-            <textarea class="big-input" id="inputField4" placeholder="Your query..."></textarea>
+            <textarea class="big-input" id="inputField4" placeholder="Ask the oracle of Internet..."></textarea>
         </div>
     </div>
 

@@ -1,6 +1,6 @@
 import wget
 from zipfile import ZipFile
-
+import time
 rfc_directory = "./RFC-all"
 model = 'granite3-dense'
 embedmodel = 'nomic-embed-text'
@@ -43,6 +43,7 @@ def download_model():
 	
 def start_ollama():
 	subprocess.Popen('ollama serve')
+	time.sleep(3)
 	
 def test_ollama(retry=False):
 	try:

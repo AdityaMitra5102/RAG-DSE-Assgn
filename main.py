@@ -1,13 +1,16 @@
 from flask import *
 from rag import *
-
+import webbrowser
 from threading import *
-
+import time
 
 app= Flask(__name__)
 
 querydict={}
 
+def open_browser():
+	time.sleep(5)
+	webbrowser.open('http://localhost:5000', new=2)
 
 def process_query(query):
 	global querydict, vstore
@@ -59,7 +62,8 @@ def submitquery():
 def main():
 	global vstore
 	vstore=init_rag()
-	app.run(host='0.0.0.0', debug=True)
+	Thread(target=open_browser).start()
+	app.run(host='0.0.0.0', port=5000, debug=True)
 	
 if __name__=='__main__':
 	main()
