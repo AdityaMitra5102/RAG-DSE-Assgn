@@ -54,9 +54,9 @@ def test_ollama(retry=False):
 			if not retry:
 				start_ollama()
 				return test_ollama(True)
-			raise ValueError('Ollama is not running. Please start Ollama.')
+			raise ValueError('Ollama is not running. Please start Ollama. Install Ollama if not installed. https://ollama.com/download')
 	except:
 		if not retry:
 			start_ollama()
 			return test_ollama(True)
-		raise ValueError('Ollama is not running. Please start Ollama.')
+		raise ValueError('Ollama is not running. Please start Ollama. Install Ollama if not installed. https://ollama.com/download')
