@@ -1,0 +1,8 @@
+wget
+tqdm
+requests
+flask
+langchain
+langchain-community
+langchain-ollama
+langchain-core
