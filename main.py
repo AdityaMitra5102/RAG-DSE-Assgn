@@ -25,7 +25,7 @@ def process_query(query):
 	print('Loaded them into vector store')
 	querydict[query]['status']=4
 	retriever=localvstore.as_retriever()
-	qa=RetrievalQA.from_chain_type(llm=llm, chain_type='refine', retriever=retriever)
+	qa=RetrievalQA.from_chain_type(llm=llm, chain_type='stuff', retriever=retriever)
 	resp=qa.run(query)
 	print(resp)
 	querydict[query]['result']=resp
@@ -66,4 +66,5 @@ def main():
 	app.run(host='0.0.0.0', port=5000, debug=True)
 	
 if __name__=='__main__':
+
 	main()
