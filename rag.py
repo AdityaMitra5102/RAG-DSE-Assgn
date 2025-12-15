@@ -2,9 +2,11 @@ from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_ollama import OllamaEmbeddings
 from langchain_ollama import OllamaLLM
+from langchain_ollama import ChatOllama
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_classic.chains.retrieval_qa.base import RetrievalQA
+from langchain_community.document_loaders.image import UnstructuredImageLoader
 from tqdm import tqdm
 
 import codecs
@@ -21,13 +23,26 @@ vstore=None
 codecs.register_error("strict", codecs.ignore_errors)
 embeddings = OllamaEmbeddings(model=embedmodel)
 llm=OllamaLLM(model=model)
+chatllm=ChatOllama(model=model)
 
 def load_rfc_documents(rfclist):
 	docs=[]
 	for rfc in rfclist:
 		filepath=(os.path.join(rfc_directory, f'rfc{str(rfc)}.txt'))
-		loader=TextLoader(filepath)
-		docs.extend(loader.load())
+		try:
+			loader=TextLoader(filepath) #Text loader
+			docs.extend(loader.load())
+		except:
+			pass
+		
+	for rfc in rfclist:
+		filepath=(os.path.join(rfc_directory, f'rfc{str(rfc)}.ps'))
+		if os.path.exists(filepath):
+			try:
+				loader= UnstructuredImageLoader(filepath) #Image loader
+				docs.extend(loader.load())
+			except:
+				pass
 		
 	text_splitter = RecursiveCharacterTextSplitter(
 		chunk_size=CHUNK_SIZE,
@@ -40,7 +55,7 @@ def load_rfc_documents(rfclist):
 	return chunked_docs
 
 	    
-def create_docs_preprocess(rfcjson):
+def create_docs_preprocess(rfcjson): #Preprocessing metadata with custom loader
 	docs=[]
 	for rfc in rfcjson:
 		doc=Document(page_content=rfcjson[rfc], metadata={'RFC':rfc})
@@ -94,6 +109,12 @@ def process_query(query):
 	resp=qa.run(query)
 	print(resp)
 	return resp
+
+def no_rag_query(query):
+	resp=chatllm.invoke([('human', query)]).content
+	print(resp)
+	return resp
+	
 
 def init_rag():
 	global vstore

@@ -7,6 +7,16 @@ import time
 app= Flask(__name__)
 
 querydict={}
+noragquerydict={}
+
+def process_norag_query(query):
+	global noragquerydict
+	print(query)
+	resp=no_rag_query(query)
+	print(resp)
+	noragquerydict[query]['result']=resp
+	noragquerydict[query]['status']=4	
+
 
 def open_browser():
 	time.sleep(5)
@@ -43,21 +53,35 @@ def getrfc():
 	content=''
 	with open(filepath, 'r') as f:
 		content=f.read()
-	htmltext=f'<html><body style="background-color: rgba(255, 255, 255, 0.7);"><pre>{content}</pre></body></html>'
+		
+	additional_content=''
+	psfilepath=os.path.join(rfc_directory, f'rfc{str(rfcnum)}.ps')
+	if os.path.exists(psfilepath):
+		additional_content='Supplementary PS file available for this RFC. Reading'
+		
+	htmltext=f'<html><body style="background-color: rgba(255, 255, 255, 0.7);"><h2>{additional_content}</h2><br><pre>{content}</pre></body></html>'
 	return render_template_string(htmltext)
 
 @app.route('/query', methods=["POST"])
 def submitquery():
 	global querydict
 	querystring=request.form.get('query')
-	if querystring not in querydict:
-		querydict[querystring]={}
-		querydict[querystring]['status']=3
+	userag=request.form.get('expert').lower()=='true'
+	if userag:
+		if querystring not in querydict:
+			querydict[querystring]={}
+			querydict[querystring]['status']=3
+			th=Thread(target=process_query, args=(querystring,))
+			th.start()
+		return jsonify(querydict[querystring])
+	else:
+		if querystring not in noragquerydict:
+			noragquerydict[querystring]={}
+			noragquerydict[querystring]['status']=3
+			th=Thread(target=process_norag_query, args=(querystring,))
+			th.start()
+		return jsonify(noragquerydict[querystring])
 		
-		th=Thread(target=process_query, args=(querystring,))
-		th.start()
-		
-	return jsonify(querydict[querystring])
 	
 def main():
 	global vstore

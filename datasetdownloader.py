@@ -20,17 +20,7 @@ def rfcdownloader():
 		zObject.extractall(rfc_directory)
 	print('Cleaning')
 	os.remove(filename)
-	directory_to_clean=rfc_directory
-	if os.path.exists(directory_to_clean):
-		for root, _, files in os.walk(directory_to_clean):
-			for file in tqdm(files):
-				if not file.lower().endswith('.txt'):
-					file_path = os.path.join(root, file)
-					try:
-						os.remove(file_path)
-					except Exception as e:
-						print(f"Error deleting {file_path}: {e}")
-
+	
 def init_datadownload():
 	if not os.path.exists(rfc_directory):
 		rfcdownloader()

@@ -408,11 +408,72 @@
             font-size: 14px;
             cursor: pointer;
         }
+
+        /* Expert mode toggle */
+        .expert-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(30, 50, 80, 0.8);
+            border: 2px solid rgba(100, 200, 255, 0.5);
+            border-radius: 10px;
+        }
+
+        .expert-label {
+            color: #8cf;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: rgba(20, 30, 50, 0.8);
+            border: 2px solid rgba(100, 200, 255, 0.5);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: rgba(50, 150, 255, 0.5);
+            border-color: rgba(100, 200, 255, 0.8);
+            box-shadow: 0 0 15px rgba(100, 200, 255, 0.4);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #8cf;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+            box-shadow: 0 0 5px rgba(100, 200, 255, 0.6);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 26px;
+            box-shadow: 0 0 10px rgba(100, 200, 255, 0.8);
+        }
     </style>
 </head>
 <body>
     <!-- Screen 1: Input -->
     <div id="screen1" class="screen active">
+        <div class="expert-toggle">
+            <span class="expert-label">Expert Mode</span>
+            <div class="toggle-switch active" id="expertToggle1">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
         <div class="background">
             <canvas class="network-lines" id="canvas1"></canvas>
             <div class="bookshelf">
@@ -432,7 +493,7 @@
                 <div class="torso"></div>
                 <div class="arm left"></div>
                 <div class="arm right"></div>
-			<div class="caption">RForaCle</div>
+                <div class="caption">RForaCle</div>
             </div>
         </div>
         <div class="input-container">
@@ -475,7 +536,6 @@
                 <div class="arm right"></div>
                 <div class="held-book"></div>
                 <div class="caption"><center>RForaCle<br>Reading...</center></div>
-
             </div>
             <div class="progress-container">
                 <div class="progress-bar-bg">
@@ -513,13 +573,18 @@
                 <div class="arm left"></div>
                 <div class="arm right"></div>
                 <div class="caption"><center>RForaCle<br>Thinking...</center></div>
-
             </div>
         </div>
     </div>
 
     <!-- Screen 4: Response -->
     <div id="screen4" class="screen">
+        <div class="expert-toggle">
+            <span class="expert-label">Expert Mode</span>
+            <div class="toggle-switch active" id="expertToggle4">
+                <div class="toggle-slider"></div>
+            </div>
+        </div>
         <div class="background">
             <canvas class="network-lines" id="canvas4"></canvas>
             <div class="bookshelf">
@@ -540,8 +605,6 @@
                 <div class="arm left"></div>
                 <div class="arm right"></div>
                 <div class="caption">RForaCle</div>
-
-
             </div>
         </div>
         
@@ -553,9 +616,48 @@
         </div>
     </div>
 
-
     <script>
         let currentScreen = 1;
+        let expertMode = true; // Expert mode is ON by default
+
+        // Function to sync both toggles
+        function syncToggles() {
+            const toggle1 = document.getElementById('expertToggle1');
+            const toggle4 = document.getElementById('expertToggle4');
+            
+            if (expertMode) {
+                toggle1.classList.add('active');
+                toggle4.classList.add('active');
+            } else {
+                toggle1.classList.remove('active');
+                toggle4.classList.remove('active');
+            }
+        }
+
+        // Toggle expert mode
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle1 = document.getElementById('expertToggle1');
+            const toggle4 = document.getElementById('expertToggle4');
+            
+            if (toggle1) {
+                toggle1.addEventListener('click', () => {
+                    expertMode = !expertMode;
+                    syncToggles();
+                    console.log('Expert mode:', expertMode);
+                });
+            }
+
+            if (toggle4) {
+                toggle4.addEventListener('click', () => {
+                    expertMode = !expertMode;
+                    syncToggles();
+                    console.log('Expert mode:', expertMode);
+                });
+            }
+
+            // Initial sync
+            syncToggles();
+        });
 
         function switchScreen(screenNumber) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -645,104 +747,102 @@
             drawNetworkLines('canvas4');
         });
 
+        let pollingTimer = null;
 
-let pollingTimer = null;
-
-function startQueryPolling(query) {
-    // Stop any previous polling
-    if (pollingTimer) {
-        clearInterval(pollingTimer);
-        pollingTimer = null;
-    }
-
-    // Immediate first request
-    sendQuery(query);
-
-    // Then poll every 3 seconds
-    pollingTimer = setInterval(() => sendQuery(query), 3000);
-}
-
-function sendQuery(query) {
-    fetch('/query', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({ query })
-    })
-    .then(r => r.json())
-    .then(data => {
-    		console.log(data);
-        // status 3 → waiting / preparing
-        if (data.status === 3) {
-            switchScreen(3);
-            return;
-        }
-
-        // status 2 → show RFC iframes + progress
-        if (data.status === 2) {
-            if (Array.isArray(data.rfclist) && data.rfclist.length === 4) {
-                const [a, b, c, d] = data.rfclist;
-               const setSrc = (id, num) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    // Extract current number after "=" (e.g. from "/rfc?num=1234" → "1234")
-    const currentMatch = el.src.match(/[?&]num=([^&]*)/);
-    const currentNum = currentMatch ? currentMatch[1] : null;
-
-    const newNum = String(num);
-
-    // If already pointing to the same number → skip update
-    if (currentNum === newNum) {
-        console.log(`Iframe ${id} already at num=${newNum}, skipping update`);
-        return;
-    }
-
-    console.log(`Updating ${id}.src → /rfc?num=${newNum}`);
-    el.src = `/rfc?num=${newNum}`;
-};
-			setSrc('fr1', a);
-                setSrc('fr2', b);
-                setSrc('fr3', c);
-                setSrc('fr4', d);
-            }
-
-            const current = Number(data.current);
-            const total   = Number(data.total);
-            if (!isNaN(current) && !isNaN(total)) {
-                updateProgress(current, total);
-            }
-
-            switchScreen(2);
-            return;
-        }
-
-        // status 4 → final result → show and STOP polling
-        if (data.status === 4) {
-        
-            const bubble = document.getElementById('respbubble');
-            if (bubble && data.result !== undefined) {
-                bubble.innerHTML = data.result;
-                console.log(bubble.innerHTML);
-                switchScreen(4);
-            }
-            else
-            {
-            	switchScreen(3);
-            }
-
-
-            // Stop the loop
-            if (pollingTimer && data.result!==undefined) {
+        function startQueryPolling(query) {
+            // Stop any previous polling
+            if (pollingTimer) {
                 clearInterval(pollingTimer);
                 pollingTimer = null;
             }
-            return;
+
+            // Immediate first request
+            sendQuery(query);
+
+            // Then poll every 3 seconds
+            pollingTimer = setInterval(() => sendQuery(query), 3000);
         }
-    })
-    .catch(err => console.error('Query polling error:', err));
-}
+
+        function sendQuery(query) {
+            fetch('/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({ 
+                    query: query,
+                    expert: expertMode.toString()
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                console.log(data);
+                // status 3 → waiting / preparing
+                if (data.status === 3) {
+                    switchScreen(3);
+                    return;
+                }
+
+                // status 2 → show RFC iframes + progress
+                if (data.status === 2) {
+                    if (Array.isArray(data.rfclist) && data.rfclist.length === 4) {
+                        const [a, b, c, d] = data.rfclist;
+                        const setSrc = (id, num) => {
+                            const el = document.getElementById(id);
+                            if (!el) return;
+
+                            // Extract current number after "=" (e.g. from "/rfc?num=1234" → "1234")
+                            const currentMatch = el.src.match(/[?&]num=([^&]*)/);
+                            const currentNum = currentMatch ? currentMatch[1] : null;
+
+                            const newNum = String(num);
+
+                            // If already pointing to the same number → skip update
+                            if (currentNum === newNum) {
+                                console.log(`Iframe ${id} already at num=${newNum}, skipping update`);
+                                return;
+                            }
+
+                            console.log(`Updating ${id}.src → /rfc?num=${newNum}`);
+                            el.src = `/rfc?num=${newNum}`;
+                        };
+                        setSrc('fr1', a);
+                        setSrc('fr2', b);
+                        setSrc('fr3', c);
+                        setSrc('fr4', d);
+                    }
+
+                    const current = Number(data.current);
+                    const total   = Number(data.total);
+                    if (!isNaN(current) && !isNaN(total)) {
+                        updateProgress(current, total);
+                    }
+
+                    switchScreen(2);
+                    return;
+                }
+
+                // status 4 → final result → show and STOP polling
+                if (data.status === 4) {
+                    const bubble = document.getElementById('respbubble');
+                    if (bubble && data.result !== undefined) {
+                        bubble.innerHTML = data.result;
+                        console.log(bubble.innerHTML);
+                        switchScreen(4);
+                    } else {
+                        switchScreen(3);
+                    }
+
+                    // Stop the loop
+                    if (pollingTimer && data.result !== undefined) {
+                        clearInterval(pollingTimer);
+                        pollingTimer = null;
+                    }
+                    return;
+                }
+            })
+            .catch(err => console.error('Query polling error:', err));
+        }
 
         // Handle Enter key on input fields
         function handleInputSubmit(event) {

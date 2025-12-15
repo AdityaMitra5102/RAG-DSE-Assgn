@@ -7,3 +7,4 @@ faiss-cpu
 langchain-community
 langchain-ollama
 langchain-core
+unstructured[all]
