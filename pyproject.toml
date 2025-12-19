@@ -1,0 +1,18 @@
+[project]
+name = "rag-dse-assgn"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "wget",
+    "tqdm",
+    "requests",
+    "flask",
+    "langchain",
+    "faiss-cpu",
+    "langchain-community",
+    "langchain-ollama",
+    "langchain-core",
+    "unstructured[all]",
+]

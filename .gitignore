@@ -1,0 +1,24 @@
+.venv/
+uv.lock
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+.ipynb_checkpoints
+
+# Project-specific data directories and files
+RFC-all/
+faiss_index/
+preprocess-metadata.json
+
+# Flask
+instance/
+.webassets-cache
