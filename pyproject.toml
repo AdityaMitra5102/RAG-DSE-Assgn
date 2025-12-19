@@ -15,4 +15,5 @@ dependencies = [
     "langchain-ollama",
     "langchain-core",
     "unstructured[all]",
+    "python-dotenv>=1.2.1",
 ]

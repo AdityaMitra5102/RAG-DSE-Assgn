@@ -1,19 +1,32 @@
+import os
+import requests
+
+import subprocess
 import wget
 from zipfile import ZipFile
 import time
+import platform
+
 rfc_directory = "./RFC-all"
 model = 'granite3-dense'
 embedmodel = 'nomic-embed-text'
 
-import os
-from tqdm import tqdm
-import requests
-import subprocess
 
 def rfcdownloader():
 	url='https://www.rfc-editor.org/in-notes/tar/RFC-all.zip'
 	print('Downloading zip')
-	filename=wget.download(url)
+	system = platform.system()
+
+	# wget throwing error related to SSL verification in MACOS
+	# Therefore, the request usages is required 
+	if system == 'Windows': 
+		filename=wget.download(url)
+	else: 
+		response = requests.get(url, verify=True, timeout=30)
+		filename = 'RFC-all.zip'
+		with open(filename, 'wb') as f:
+			f.write(response.content)
+
 	print('..Done')
 	print('Extracting')
 	with ZipFile(filename, 'r') as zObject:

@@ -133,7 +133,7 @@ def init_rag():
 
 if __name__ == "__main__":
     while True:
-    	query=input('Enter query or quit \n')
-    	if query=='quit':
-    	    	break	
-    	process_query(query)
+        query = input('Enter query or quit \n')
+        if query == 'quit':
+            break
+        process_query(query)

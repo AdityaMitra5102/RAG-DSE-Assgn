@@ -3,6 +3,9 @@ from rag import *
 import webbrowser
 from threading import *
 import time
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app= Flask(__name__)
 
@@ -98,7 +101,9 @@ def main():
 	vstore=init_rag()
 	rfcjson=preprocess_rfc_index(rfc_directory, 'rfc-index.txt')
 	Thread(target=open_browser).start()
-	app.run(host='0.0.0.0', port=5000, debug=False)
+	port = int(os.getenv('PORT', 5000))
+	host = os.getenv('HOST', '0.0.0.0')
+	app.run(host=host, port=port, debug=False)
 	
 if __name__=='__main__':
 

@@ -8,3 +8,4 @@ langchain-community
 langchain-ollama
 langchain-core
 unstructured[all]
+python-dotenv
