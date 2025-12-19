@@ -54,7 +54,14 @@ def library():
 @app.route('/metadata')
 def metadata():
 	global rfcjson
-	return jsonify(rfcjson)
+	query=request.args.get('query', '')
+	if not query:
+		return jsonify(rfcjson)
+	similarrfc=get_similarity(vstore, query)
+	retdict={}
+	for rfc in similarrfc:
+		retdict[rfc]=rfcjson[rfc]
+	return jsonify(retdict)
 	
 @app.route('/rfc')
 def getrfc():
@@ -80,7 +87,7 @@ def submitquery():
 	if userag:
 		if querystring not in querydict:
 			querydict[querystring]={}
-			querydict[querystring]['status']=3
+			querydict[querystring]['status']=5
 			th=Thread(target=process_query, args=(querystring,))
 			th.start()
 		return jsonify(querydict[querystring])

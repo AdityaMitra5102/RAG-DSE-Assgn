@@ -79,7 +79,7 @@
             background: linear-gradient(135deg, #00ccff 0%, #0066cc 100%);
             border: 2px solid #00ffff;
             border-radius: 4px;
-            cursor: pointer;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="10" cy="10" r="7"/><path d="M15 15l6 6"/></svg>') 12 12, auto;
             position: relative;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
@@ -242,6 +242,38 @@
             min-height: 500px;
         }
 
+        .search-container {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 500;
+        }
+
+        .search-box {
+            background: rgba(10, 22, 40, 0.7);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 16px;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            width: 300px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 255, 255, 0.2);
+        }
+
+        .search-box::placeholder {
+            color: rgba(0, 255, 255, 0.5);
+        }
+
+        .search-box:focus {
+            background: rgba(10, 22, 40, 0.85);
+            border-color: #00ffff;
+            box-shadow: 0 8px 32px rgba(0, 255, 255, 0.4), 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2em;
@@ -256,10 +288,24 @@
             .book-spine {
                 font-size: 9px;
             }
+
+            .search-container {
+                left: 15px;
+                bottom: 15px;
+            }
+
+            .search-box {
+                width: calc(100vw - 60px);
+                max-width: 300px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="search-container">
+        <input type="text" id="search-box" class="search-box" placeholder="Search RFCs...">
+    </div>
+
     <div class="container">
         <h1 id="main-heading">RForaCle Library</h1>
         <div id="library" class="loading">Loading books...</div>
@@ -327,7 +373,12 @@
 
         async function loadLibrary() {
             try {
-                const response = await fetch('/metadata');
+                const searchQuery = document.getElementById('search-box').value;
+                const url = searchQuery 
+                    ? `/metadata?query=${encodeURIComponent(searchQuery)}`
+                    : '/metadata';
+                
+                const response = await fetch(url);
                 const data = await response.json();
                 
                 const entries = Object.entries(data);
@@ -421,6 +472,15 @@
                     `<div style="color: #ff0000; text-align: center;">Error loading library: ${err.message}</div>`;
             }
         }
+
+        // Search box listener
+        let searchTimeout;
+        document.getElementById('search-box').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                loadLibrary();
+            }, 300); // Debounce for 300ms
+        });
 
         loadLibrary();
     </script>
