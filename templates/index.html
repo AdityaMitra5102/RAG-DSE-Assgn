@@ -860,6 +860,11 @@
         // Add event listeners to both input fields
         document.getElementById('inputField1').addEventListener('keydown', handleInputSubmit);
         document.getElementById('inputField4').addEventListener('keydown', handleInputSubmit);
+        document.querySelectorAll('.book').forEach(function(element) {
+  element.addEventListener('click', function() {
+    window.open('/library', '_blank');
+  });
+});
     </script>
 </body>
 

@@ -1,4 +1,6 @@
 import json
+import os
+
 filename='rfc-index.txt'
 
 def format_line(line):
@@ -6,7 +8,8 @@ def format_line(line):
 	formatted= ' '.join(line.split())
 	return formatted
 
-def preprocess_rfc_index(filename):
+def preprocess_rfc_index(filepath, filename):
+	filename=os.path.join(filepath, filename)
 	with open(filename, encoding='utf-8', errors='ignore') as f:
 		lines=f.readlines()
 	for x in lines:
@@ -47,6 +50,16 @@ def preprocess_rfc_index(filename):
 		rfcnum=int(x[:x.index(' ')])
 		rfcdict[rfcnum]=f'RFC-{str(rfcnum)}, RFC{str(rfcnum)}, {x}'
 		
+	toremove=[]
+	for rfc in rfcdict:
+		if not os.path.exists(os.path.join(filepath, f'rfc{rfc}.txt')):
+			toremove.append(rfc)
+			
+	for rem in toremove:
+		rfcdict.pop(rem)
+		
 	print(json.dumps(rfcdict, indent=2))
+	with open('preprocess-metadata.json', 'w') as prepfile:
+		prepfile.write(json.dumps(rfcdict, indent=4))
 	return rfcdict
 	

@@ -19,7 +19,7 @@ embedmodel = 'nomic-embed-text'
 CHUNK_SIZE = 512
 CHUNK_OVERLAP = 20
 vstore=None
-
+rfcjson={}
 codecs.register_error("strict", codecs.ignore_errors)
 embeddings = OllamaEmbeddings(model=embedmodel)
 llm=OllamaLLM(model=model)
@@ -92,7 +92,8 @@ def create_vector_store(texts, querydict=None, query=None):
     return vector_store
 
 def create_preprocessed_vstore():
-	rfcjson=preprocess_rfc_index(os.path.join(rfc_directory, 'rfc-index.txt'))
+	global rfcjson
+	rfcjson=preprocess_rfc_index(rfc_directory, 'rfc-index.txt')
 	docs=create_docs_preprocess(rfcjson)
 	vstore=create_vector_store(docs)
 	return vstore

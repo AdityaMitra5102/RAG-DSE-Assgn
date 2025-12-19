@@ -8,6 +8,7 @@ app= Flask(__name__)
 
 querydict={}
 noragquerydict={}
+rfcjson={}
 
 def process_norag_query(query):
 	global noragquerydict
@@ -45,6 +46,15 @@ def process_query(query):
 @app.route('/')
 def index():
 	return render_template('index.html')
+
+@app.route('/library')
+def library():
+	return render_template('library.html')
+
+@app.route('/metadata')
+def metadata():
+	global rfcjson
+	return jsonify(rfcjson)
 	
 @app.route('/rfc')
 def getrfc():
@@ -84,8 +94,9 @@ def submitquery():
 		
 	
 def main():
-	global vstore
+	global vstore, rfcjson
 	vstore=init_rag()
+	rfcjson=preprocess_rfc_index(rfc_directory, 'rfc-index.txt')
 	Thread(target=open_browser).start()
 	app.run(host='0.0.0.0', port=5000, debug=False)
 	
