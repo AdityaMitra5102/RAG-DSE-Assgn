@@ -22,3 +22,6 @@ preprocess-metadata.json
 # Flask
 instance/
 .webassets-cache
+
+.pylintrc
+.env
