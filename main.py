@@ -24,7 +24,8 @@ def process_norag_query(query):
 
 def open_browser():
 	time.sleep(5)
-	webbrowser.open('http://localhost:5000', new=2)
+	port = int(os.getenv('PORT', 5000))
+	webbrowser.open(f'http://localhost:{port}', new=2)
 
 def process_query(query):
 	global querydict, vstore
