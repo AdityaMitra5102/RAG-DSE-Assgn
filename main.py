@@ -67,6 +67,15 @@ def metadata():
 		retdict[rfc]=rfcjson[rfc]
 	return jsonify(retdict)
 	
+@app.route('/downloadps')
+def downloadps():
+	rfcnum=int(request.args.get('num'))
+	filepath=os.path.join(rfc_directory, f'rfc{str(rfcnum)}.ps')
+	try:
+		return send_file(filepath)
+	except:
+		return 'Postscript file unavailable'
+	
 @app.route('/rfc')
 def getrfc():
 	rfcnum=int(request.args.get('num'))
@@ -78,7 +87,7 @@ def getrfc():
 	additional_content=''
 	psfilepath=os.path.join(rfc_directory, f'rfc{str(rfcnum)}.ps')
 	if os.path.exists(psfilepath):
-		additional_content='Supplementary PS file available for this RFC. Reading'
+		additional_content=f'Supplementary PS file <a href="/downloadps?num={rfcnum}" target="_blank">available</a> for this RFC. Reading.'
 		
 	htmltext=f'<html><body style="background-color: rgba(255, 255, 255, 0.7);"><h2>{additional_content}</h2><br><pre>{content}</pre></body></html>'
 	return render_template_string(htmltext)
