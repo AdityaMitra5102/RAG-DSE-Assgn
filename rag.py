@@ -7,6 +7,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_classic.chains.retrieval_qa.base import RetrievalQA
 from langchain_community.document_loaders.image import UnstructuredImageLoader
+from langchain_community.document_loaders import PyPDFLoader
 from tqdm import tqdm
 
 import codecs
@@ -43,6 +44,16 @@ def load_rfc_documents(rfclist):
 				docs.extend(loader.load())
 			except:
 				pass
+
+	for rfc in rfclist:
+		filepath=(os.path.join(rfc_directory, f'rfc{str(rfc)}.pdf'))
+		if os.path.exists(filepath):
+			try:
+				loader= PyPDFLoader(filepath) #PDF loader
+				docs.extend(loader.load())
+			except:
+				pass
+
 		
 	text_splitter = RecursiveCharacterTextSplitter(
 		chunk_size=CHUNK_SIZE,
